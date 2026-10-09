@@ -1,28 +1,25 @@
 # Análise de Transações PIX por Município
 
-Projeto de análise de dados desenvolvido em Python utilizando dados públicos
-do Banco Central do Brasil e estimativas populacionais do IBGE.
+Projeto de portfólio em **Análise de Dados** desenvolvido em Python a partir de dados públicos do **Banco Central do Brasil** e de estimativas populacionais do **IBGE**.
 
-O projeto realiza desde a extração dos dados por API até a criação de indicadores
-de utilização do PIX por habitante.
+O objetivo é comparar a utilização do PIX entre municípios brasileiros de diferentes tamanhos, transformando dados brutos em indicadores proporcionais à população e em insights mais comparáveis entre cidades.
 
-## Objetivo
+## Visão geral
 
-Analisar a utilização do PIX nos municípios brasileiros e comparar municípios
-de diferentes tamanhos populacionais utilizando indicadores proporcionais à população.
+- **Período analisado:** setembro de 2026
+- **Municípios analisados:** 5.571
+- **Fontes:** Banco Central do Brasil + IBGE
+- **Integração das bases:** código IBGE do município
+- **Principais ferramentas:** Python, Pandas, Requests, Matplotlib e Jupyter Notebook
 
-## Fontes dos dados
+## Perguntas do projeto
 
-### Banco Central do Brasil
+O projeto foi desenvolvido para responder principalmente:
 
-Dados de transações PIX por município obtidos por meio da API pública do
-Banco Central do Brasil.
-
-### IBGE
-
-Estimativa populacional dos municípios brasileiros para 2026.
-
-As duas bases foram relacionadas utilizando o código IBGE do município.
+- Quais municípios movimentam mais valor de PIX por habitante?
+- Quais municípios realizam mais transações de PIX por habitante?
+- Valor financeiro movimentado e quantidade de transações apresentam o mesmo comportamento?
+- Como valores extremos afetam os rankings municipais?
 
 ## Tecnologias utilizadas
 
@@ -37,7 +34,63 @@ As duas bases foram relacionadas utilizando o código IBGE do município.
 - CSV
 - Apache Parquet
 
-## Estrutura do projeto
+## Pipeline da análise
+
+### 1. Extração dos dados do Banco Central
+
+Os dados de transações PIX por município foram obtidos através da API pública do Banco Central do Brasil utilizando a biblioteca `requests`.
+
+A resposta em JSON foi convertida em DataFrame com Pandas e passou por verificações de:
+
+- tipos de dados;
+- valores ausentes;
+- registros duplicados;
+- estrutura e consistência da base.
+
+### 2. Preparação da base populacional
+
+A estimativa populacional dos municípios brasileiros para 2026 foi importada com Pandas.
+
+O código completo do município foi construído a partir dos códigos de UF e município fornecidos pelo IBGE, permitindo relacionar as duas fontes.
+
+### 3. Integração das bases
+
+As informações do Banco Central e do IBGE foram relacionadas pelo código IBGE.
+
+A base final apresentou correspondência populacional para todos os **5.571 municípios** analisados.
+
+### 4. Criação de indicadores
+
+Foram construídos dois indicadores principais:
+
+- **valor de PIX enviado por habitante**;
+- **quantidade de transações PIX enviadas por habitante**.
+
+Para evitar dupla contagem, foram consideradas as operações dos pagadores pessoa física e pessoa jurídica.
+
+### 5. Tratamento de valores extremos
+
+A análise identificou municípios com movimentações muito acima da maior parte da distribuição.
+
+Esses registros foram preservados na base. Para os rankings principais, entretanto, municípios acima do **percentil 99 do valor de PIX por habitante** foram desconsiderados para reduzir distorções na comparação.
+
+## Principais resultados
+
+Entre os municípios considerados no ranking após o tratamento dos valores extremos:
+
+- **Porto Real (RJ)** apresentou o maior valor de PIX enviado por habitante;
+- **Mamborê (PR)** apresentou a maior quantidade de transações PIX por habitante.
+
+O resultado mostra que **valor financeiro movimentado e quantidade de transações representam comportamentos diferentes**. Um município pode movimentar valores elevados sem necessariamente registrar a maior frequência de operações.
+
+## Visualizações
+
+Foram criados gráficos para comparar:
+
+- os 10 municípios com maior valor de PIX por habitante;
+- os 10 municípios com maior quantidade de transações PIX por habitante.
+
+## Estrutura do repositório
 
 ```text
 Analise_pix_banco_central/
@@ -57,70 +110,39 @@ Analise_pix_banco_central/
 └── requirements.txt
 ```
 
+## Notebooks
 
+### `analise_pix_bcb.ipynb`
 
-Etapas do projeto
+Extração, tratamento e validação inicial dos dados provenientes do Banco Central.
 
-1. Extração e tratamento dos dados do Banco Central
-   Os dados foram extraídos por meio da API pública do Banco Central utilizando
-   a biblioteca requests.
-   A resposta em JSON foi transformada em um DataFrame utilizando Pandas.
-   Foram realizadas verificações de tipos, valores ausentes, registros duplicados
-   e estrutura da base.
-2. Preparação dos dados do IBGE
-   A planilha de estimativa populacional de 2026 foi importada utilizando Pandas.
-   O código completo do município foi criado a partir dos códigos da UF e do
-   município fornecidos pelo IBGE.
-3. Definição do período
-   Foi utilizado setembro de 2026 como período de referência para a análise.
-   Após uma nova consulta à API, foram obtidos dados de todos os 5.571 municípios
-   presentes na base populacional.
-   Um registro sem identificação municipal foi desconsiderado apenas na análise
-   por município.
-4. Integração das bases
-   Os dados do Banco Central e do IBGE foram relacionados utilizando o código
-   IBGE do município.
-   O resultado final apresentou correspondência populacional para todos os
-   5.571 municípios analisados.
-5. Criação de indicadores
-   Foram criados os seguintes indicadores:
+### `analise_pix_populacao.ipynb`
 
-- valor de PIX enviado por habitante;
-- quantidade de transações PIX enviadas por habitante.
-  Para evitar dupla contagem, foram consideradas as operações dos pagadores
-  pessoa física e pessoa jurídica.
+Integração com a base populacional do IBGE, criação dos indicadores, análise de outliers, rankings e visualizações.
 
-6. Análise de valores extremos
-   Foram encontrados municípios com movimentações muito acima da maior parte
-   da distribuição.
-   Esses registros foram preservados na base, porém os municípios acima do
-   percentil 99 do valor de PIX por habitante foram desconsiderados nos rankings
-   principais para reduzir distorções.
-7. Resultados
-   Entre os municípios considerados no ranking sem os valores extremos:
+## Como executar
 
-- Porto Real (RJ) apresentou o maior valor de PIX enviado por habitante;
-- Mamborê (PR) apresentou a maior quantidade de transações PIX por habitante.
-  Os resultados mostram que valor financeiro movimentado e quantidade de
-  transações representam comportamentos diferentes.
-  Um município pode movimentar grandes valores sem necessariamente apresentar
-  a maior quantidade de operações.
-  Visualizações
-  Foram criados gráficos com:
-- os 10 municípios com maior valor de PIX por habitante;
-- os 10 municípios com maior quantidade de transações PIX por habitante.
-  Notebooks
-  analise_pix_bcb.ipynb
-  Extração, tratamento e validação inicial dos dados do Banco Central.
-  analise_pix_populacao.ipynb
-  Integração com os dados populacionais do IBGE, criação de indicadores,
-  análise de outliers, rankings e visualizações.
-  Possíveis evoluções
-  O projeto pode ser expandido futuramente com:
+Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/Ralfzao/Analise_pix_banco_central.git
+cd Analise_pix_banco_central
+pip install -r requirements.txt
+```
+
+Em seguida, abra os notebooks da pasta `notebooks/` em Jupyter Notebook ou ambiente compatível.
+
+## Possíveis evoluções
+
 - comparação entre diferentes meses;
 - análise por estado e região;
 - mapas geográficos;
 - dashboard em Power BI;
 - análise da evolução temporal do PIX.
-  Autor
-  Projeto desenvolvido como parte dos meus estudos e portfólio em Análise de Dados.
+
+## Autor
+
+**Matheus Opalenski**  
+Em formação em Análise de Dados pela EBAC, com foco em SQL, Python, Pandas e visualização de dados.
+
+Este projeto foi desenvolvido para fins de estudo e portfólio profissional em Análise de Dados.
