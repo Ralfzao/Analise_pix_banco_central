@@ -1,7 +1,6 @@
-```txt
 pandas
 requests
 pyarrow
 jupyter
-openpyx1
+openpyxl
 matplotlib
